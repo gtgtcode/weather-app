@@ -53,11 +53,11 @@ function App() {
                   document.getElementById("weather-desc").innerHTML =
                     weatherDesc[0].toUpperCase() + weatherDesc.slice(1);
 
-                  const dayOne = data.list[6];
-                  const dayTwo = data.list[12];
-                  const dayThree = data.list[18];
-                  const dayFour = data.list[24];
-                  const dayFive = data.list[30];
+                  const dayOne = data.list[8];
+                  const dayTwo = data.list[16];
+                  const dayThree = data.list[24];
+                  const dayFour = data.list[30];
+                  const dayFive = data.list[38];
 
                   const dayOneTemp = dayOne.main.temp;
                   document.getElementById("day-1-temp").innerHTML =
@@ -93,6 +93,64 @@ function App() {
 
     const errorCallback = (error) => {
       console.log(error);
+      const fallbackDefault = "Richmond";
+      document.getElementById("location").innerHTML = "Richmond, Virginia";
+      fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?lat=37.5385&lon=-77.4342&units=imperial&apiKey=98350c03e7de7277f5c99b44dcb2fc51`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          const currentTemp = data.list[0].main.temp;
+          const weatherDesc = data.list[0].weather[0].description;
+          weatherDesc[0].toUpperCase();
+          const feelsLike = data.list[0].main.feels_like;
+          const tempMax = data.list[0].main.temp_max;
+          const tempMin = data.list[0].main.temp_min;
+          const windSpeed = data.list[0].wind.speed;
+          document.getElementById("currentTemp").innerHTML =
+            Math.round(currentTemp) + "°";
+          document.getElementById("feels-like").innerHTML =
+            "Feels like: " + Math.round(feelsLike) + "°";
+          document.getElementById("temp-hi").innerHTML =
+            "HI: " + Math.round(tempMax) + "°";
+          document.getElementById("temp-lo").innerHTML =
+            "LO: " + Math.round(tempMin) + "°";
+          document.getElementById("wind-speed").innerHTML =
+            "Wind: " + Math.round(windSpeed) + "MPH";
+          document.getElementById("weather-desc").innerHTML =
+            weatherDesc[0].toUpperCase() + weatherDesc.slice(1);
+
+          const dayOne = data.list[8];
+          const dayTwo = data.list[16];
+          const dayThree = data.list[24];
+          const dayFour = data.list[30];
+          const dayFive = data.list[38];
+
+          const dayOneTemp = dayOne.main.temp;
+          document.getElementById("day-1-temp").innerHTML =
+            Math.round(dayOneTemp) + "°";
+          const dayTwoDate = dayjs(dayTwo.dt_txt).format("MM/DD");
+          const dayTwoTemp = dayTwo.main.temp;
+          document.getElementById("day-2-date").innerHTML = dayTwoDate;
+          document.getElementById("day-2-temp").innerHTML =
+            Math.round(dayTwoTemp) + "°";
+          const dayThreeDate = dayjs(dayThree.dt_txt).format("MM/DD");
+          const dayThreeTemp = dayThree.main.temp;
+          document.getElementById("day-3-date").innerHTML = dayThreeDate;
+          document.getElementById("day-3-temp").innerHTML =
+            Math.round(dayThreeTemp) + "°";
+          const dayFourDate = dayjs(dayFour.dt_txt).format("MM/DD");
+          const dayFourTemp = dayFour.main.temp;
+          document.getElementById("day-4-date").innerHTML = dayFourDate;
+          document.getElementById("day-4-temp").innerHTML =
+            Math.round(dayFourTemp) + "°";
+          const dayFiveDate = dayjs(dayFive.dt_txt).format("MM/DD");
+          const dayFiveTemp = dayFive.main.temp;
+          document.getElementById("day-5-date").innerHTML = dayFiveDate;
+          document.getElementById("day-5-temp").innerHTML =
+            Math.round(dayFiveTemp) + "°";
+        });
     };
 
     navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
@@ -144,11 +202,11 @@ function App() {
       </div>
       <div
         id="five-day-container"
-        className="container mx-auto grid grid-cols-5 max-md:block"
+        className="md-only:grid-rows-2 container mx-auto mt-4 grid gap-4 max-sm:block md:grid-cols-3 lg:grid-cols-5"
       >
         <div
           id="day-1"
-          className="container relative col-span-1 mx-auto rounded-[40px] bg-gray-700 max-md:mt-4 max-md:h-[6rem] max-md:w-[22rem] md:m-4 md:h-[16rem] md:w-[10rem]"
+          className="container relative mx-auto rounded-[40px] bg-gray-700 max-md:h-[6rem] max-md:w-[22rem]  md:h-[16rem] md:w-[10rem]"
         >
           <div
             id="day-1-date"
@@ -163,7 +221,7 @@ function App() {
         </div>
         <div
           id="day-2"
-          className="container relative col-span-1 mx-auto rounded-[40px] bg-gray-700 max-md:mt-4 max-md:h-[6rem] max-md:w-[22rem] md:m-4 md:h-[16rem] md:w-[10rem]"
+          className="container relative mx-auto rounded-[40px] bg-gray-700 max-md:mt-4 max-md:h-[6rem] max-md:w-[22rem] md:h-[16rem] md:w-[10rem]"
         >
           <div
             id="day-2-date"
@@ -176,7 +234,7 @@ function App() {
         </div>
         <div
           id="day-3"
-          className="container relative col-span-1 mx-auto rounded-[40px] bg-gray-700 max-md:mt-4 max-md:h-[6rem] max-md:w-[22rem] md:m-4 md:h-[16rem] md:w-[10rem]"
+          className="container relative mx-auto rounded-[40px] bg-gray-700 max-md:mt-4 max-md:h-[6rem] max-md:w-[22rem] md:h-[16rem] md:w-[10rem]"
         >
           <div
             id="day-3-date"
@@ -189,7 +247,7 @@ function App() {
         </div>
         <div
           id="day-4"
-          className="container relative col-span-1 mx-auto rounded-[40px] bg-gray-700 max-md:mt-4 max-md:h-[6rem] max-md:w-[22rem] md:m-4 md:h-[16rem] md:w-[10rem]"
+          className="container relative mx-auto rounded-[40px] bg-gray-700 max-md:mt-4 max-md:h-[6rem] max-md:w-[22rem]  md:h-[16rem] md:w-[10rem]"
         >
           <div
             id="day-4-date"
@@ -202,7 +260,7 @@ function App() {
         </div>
         <div
           id="day-5"
-          className="container relative col-span-1 mx-auto rounded-[40px] bg-gray-700 max-md:mt-4 max-md:mb-4 max-md:h-[6rem] max-md:w-[22rem] md:m-4 md:h-[16rem] md:w-[10rem] "
+          className="container relative mx-auto rounded-[40px] bg-gray-700 max-md:mt-4 max-md:mb-4 max-md:h-[6rem] max-md:w-[22rem] md:h-[16rem] md:w-[10rem] "
         >
           <div
             id="day-5-date"
