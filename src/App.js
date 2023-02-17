@@ -1,8 +1,18 @@
 import React from "react";
-import ThunderstormIcon from "@mui/icons-material/Thunderstorm";
 import SearchIcon from "@mui/icons-material/Search";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import states from "../src/json/states.json";
 import dayjs from "dayjs";
-import { Button, Input, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Input,
+  Modal,
+  TextField,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 function App() {
@@ -11,6 +21,77 @@ function App() {
       mode: "dark",
     },
   });
+
+  let localStorageJSON = "";
+
+  if (localStorage.getItem("searchHistory") !== null) {
+    localStorageJSON = JSON.parse(
+      "[" +
+        localStorage
+          .getItem("searchHistory")
+          .slice(0, localStorage.getItem("searchHistory").length - 1) +
+        "]"
+    );
+  }
+
+  function deleteHistory() {
+    localStorage.setItem("searchHistory", "");
+  }
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+    if (localStorageJSON !== undefined) {
+      setTimeout(() => {
+        document.getElementById("history-container").innerHTML = "";
+        for (let i = 0; i < localStorageJSON.length; i++) {
+          let historyButton = document.createElement("Button");
+          historyButton.setAttribute("id", "history-button");
+          historyButton.setAttribute(
+            "class",
+            "w-3/4 container mx-auto m-2 p-4 border border-gray-800 rounded-[40px] text-center"
+          );
+          historyButton.onclick = function () {
+            handleClose();
+            document.getElementById("city-search").value =
+              localStorageJSON[i][0];
+            let rawState = localStorageJSON[i][1];
+
+            for (let x = 0; x < states.length; x++) {
+              if (rawState == states[x].state) {
+                document.getElementById("state-search").value = states[x].code;
+              }
+            }
+          };
+
+          historyButton.innerHTML = localStorageJSON[i];
+
+          document.getElementById("history-container").append(historyButton);
+        }
+      }, 300);
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const action = (
+    <React.Fragment>
+      <Button color="secondary" size="small" onClick={handleClose}>
+        UNDO
+      </Button>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   function Search() {
     const cityLocation = document.getElementById("city-search").value;
@@ -24,6 +105,30 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
+        if (localStorage.getItem("searchHistory") !== null) {
+          localStorage.setItem(
+            "searchHistory",
+            localStorage.getItem("searchHistory") +
+              `["` +
+              data[0].name +
+              `", "` +
+              data[0].state +
+              `"],`
+          );
+        } else {
+          localStorage.setItem(
+            "searchHistory",
+            `["` + data[0].name + `", "` + data[0].state + `"],`
+          );
+        }
+        localStorageJSON = JSON.parse(
+          "[" +
+            localStorage
+              .getItem("searchHistory")
+              .slice(0, localStorage.getItem("searchHistory").length - 1) +
+            "]"
+        );
+
         document.getElementById("location").innerHTML =
           data[0].name + ", " + data[0].state;
         fetch(
@@ -31,7 +136,7 @@ function App() {
         )
           .then((response) => response.json())
           .then((data) => {
-            console.log(data);
+            console.log(data.length);
             const currentTemp = data.list[0].main.temp;
             const weatherDesc = data.list[0].weather[0].description;
             weatherDesc[0].toUpperCase();
@@ -182,6 +287,10 @@ function App() {
       )
         .then((response) => response.json())
         .then((data) => {
+          localStorage.setItem(
+            "searchHistory",
+            localStorage.getItem("searchHistory") + ["Richmond", "Virginia"]
+          );
           console.log(data);
           const currentTemp = data.list[0].main.temp;
           const weatherDesc = data.list[0].weather[0].description;
@@ -244,9 +353,38 @@ function App() {
         <header className="w-full bg-gray-700">
           <p className="p-4 text-center font-bold">Weather App</p>
         </header>
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box className="container absolute top-1/2 left-1/2 mx-auto h-[600px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-[40px] bg-gray-700 ">
+            <p className="p-6 text-center">Search History</p>
+            <div
+              id="history-container"
+              className="container mx-auto h-[400px] w-full overflow-auto text-center"
+            ></div>
+            <div className="mt-10 text-center">
+              <Button
+                variant="outlined"
+                startIcon={<DeleteSweepIcon />}
+                onClick={() => {
+                  deleteHistory();
+                  handleClose();
+                  setTimeout(() => {
+                    Search();
+                  }, 600);
+                }}
+              >
+                Clear History
+              </Button>
+            </div>
+          </Box>
+        </Modal>
         <div
           id="search-container"
-          className="sm-only:w-[22rem] container relative mx-auto mt-10 rounded-[40px] bg-gray-700 p-4 text-center md:w-[30rem]"
+          className="sm-only:w-[22rem] container relative relative mx-auto mt-4 rounded-[40px] bg-gray-700 p-4 text-center md:w-[30rem] md:pb-10"
         >
           <TextField
             id="city-search"
@@ -263,27 +401,34 @@ function App() {
             className="!ml-4 w-[100px]"
             inputProps={{ maxLength: 2 }}
           ></TextField>
+          <div className="mt-4 block md:hidden"></div>
           <Button
             variant="contained"
             disableElevation
-            className="!ml-4 md:!mt-[0.09rem]"
+            className="sm-only:!mt-2 sm:!ml-0 md:!ml-4 md:!mt-[0.09rem]"
             startIcon={<SearchIcon />}
             onClick={Search}
           >
             Search
           </Button>
+          <IconButton
+            aria-label="history dropdown"
+            className="!absolute sm:bottom-4 sm:left-10 sm:translate-x-0 md:bottom-0 md:left-1/2 md:-translate-x-1/2"
+            onClick={handleOpen}
+          >
+            <ArrowDropDownIcon />
+          </IconButton>
         </div>
         <div
           id="mainContainer"
-          className="container relative mx-auto mt-10 h-[22rem] w-[22rem] rounded-[40px] bg-gray-700 p-4"
+          className="container relative mx-auto mt-4 h-[22rem] w-[22rem] rounded-[40px] bg-gray-700 p-4"
         >
           <p id="location" className="pl-4"></p>
           <p
             id="rain-chance-container"
             className="absolute right-[2rem] top-[1rem]"
           >
-            <ThunderstormIcon className="inline pr-1" />
-            <p id="rain-chance" className="inline"></p>
+            TODAY
           </p>
           <div id="temp-container" className="relative">
             <h1 id="currentTemp" className="pl-5 text-[6rem]"></h1>
