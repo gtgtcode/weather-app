@@ -287,10 +287,7 @@ function App() {
       )
         .then((response) => response.json())
         .then((data) => {
-          localStorage.setItem(
-            "searchHistory",
-            localStorage.getItem("searchHistory") + ["[Richmond,Virginia]"]
-          );
+          localStorage.setItem("searchHistory", "[Richmond,Virginia]");
           console.log(data);
           const currentTemp = data.list[0].main.temp;
           const weatherDesc = data.list[0].weather[0].description;
