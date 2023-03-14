@@ -98,7 +98,7 @@ function App() {
     const stateLocation = document.getElementById("state-search").value;
     console.log(cityLocation + ", " + stateLocation);
     fetch(
-      `http://api.openweathermap.org/geo/1.0/direct?q=${
+      `https://api.openweathermap.org/geo/1.0/direct?q=${
         cityLocation + "," + stateLocation
       },US&units=imperial&appid=98350c03e7de7277f5c99b44dcb2fc51`
     )
@@ -207,7 +207,7 @@ function App() {
           document.getElementById("location").innerHTML =
             cityLocation + ", " + stateLocation;
           fetch(
-            `http://api.openweathermap.org/geo/1.0/zip?zip=${data.features[0].properties.postcode},US&appid=98350c03e7de7277f5c99b44dcb2fc51`
+            `https://api.openweathermap.org/geo/1.0/zip?zip=${data.features[0].properties.postcode},US&appid=98350c03e7de7277f5c99b44dcb2fc51`
           )
             .then((response) => response.json())
             .then((postdata) => {
@@ -289,7 +289,7 @@ function App() {
         .then((data) => {
           localStorage.setItem(
             "searchHistory",
-            localStorage.getItem("searchHistory") + ["Richmond", "Virginia"]
+            localStorage.getItem("searchHistory") + ["[Richmond,Virginia]"]
           );
           console.log(data);
           const currentTemp = data.list[0].main.temp;
